@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Prompt Splitter - Home{% endblock %}
+
+{% block content %}
+        <div class="card mb-4">
+            <div class="card-body text-center">
+                <p class="card-text lead mb-0">
+                    This tool helps you manage large text prompts for AI models like ChatGPT.
+                    Paste your content below, set your desired chunk size, and click 'Split Prompt'.
+                </p>
+            </div>
+        </div>
+
+        <form action="/chunk" method="post" id="chunk_form">
+            <div class="mb-3">
+                <label for="prompt" class="form-label">Enter your long prompt:</label>
+                <textarea class="form-control" id="prompt" name="prompt" rows="8"></textarea>
+            </div>
+            <div class="mb-3">
+                <label for="chunk_size_select" class="form-label">Chunk Size:</label>
+                <select class="form-select" id="chunk_size_select">
+                    <option value="15000">ChatGPT (Recommended - 15000 characters)</option>
+                    <option value="custom">Custom</option>
+                </select>
+                <p class="form-text text-muted small">
+                    Max characters length for each splitted part. General max safe chunk for ChatGPT is 15,000. Choose the max length for each split part.
+                </p>
+            </div>
+            <div class="mb-3" id="custom_chunk_size_wrapper" style="display: none;">
+                <label for="chunk_size" class="form-label">Custom Chunk Size (characters):</label>
+                <input type="number" class="form-control" id="chunk_size" name="chunk_size_custom" value="10000" min="100">
+            </div>
+            <input type="hidden" id="chunk_size_hidden" name="chunk_size" value="15000">
+            <button type="submit" class="btn btn-primary">Split Prompt</button>
+        </form>
+
+        <div class="card mt-5">
+            <div class="card-body">
+                <h5 class="card-title">About This Tool & Advanced Usage</h5>
+                <p class="card-text small">
+                    This application is designed to streamline your interaction with large language models (LLMs)
+                    by intelligently segmenting extensive text inputs. LLMs, such as those powering ChatGPT,
+                    have specific input limitations (often measured in "tokens"). Exceeding these limits
+                    can lead to truncated responses or errors. Our tool ensures your full context is processed
+                    by breaking it into manageable parts.
+                </p>
+                <h5 class="card-title mt-3">Key Features & Benefits</h5>
+                <ul class="list-unstyled small">
+                    <li><strong>Token Limit Management:</strong> Automatically splits your prompt to fit within typical AI model token constraints.</li>
+                    <li><strong>Context Preservation:</strong> Each generated chunk includes specific instructions for the AI, guiding it to store information and wait for subsequent parts, ensuring the full context is maintained across interactions.</li>
+                    <li><strong>User-Friendly Interface:</strong> Simple copy buttons for each chunk and a clear input form.</li>
+                    <li><strong>Customizable Chunk Size:</strong> You have full control over the maximum size of each chunk (in characters). This allows you to fine-tune the output for different AI models or specific use cases.</li>
+                </ul>
+                <h5 class="card-title mt-3">How to Use Effectively</h5>
+                <ol class="small">
+                    <li><strong>Paste Your Content:</strong> Input your entire long prompt into the text area.</li>
+                    <li><strong>Set Chunk Size:</strong> Adjust the 'Chunk Size (characters)' field. A good rule of thumb is that <strong>approximately 4 characters equal 1 token</strong>. For example, if your AI model has a 16,000 token limit, a chunk size of 60,000 characters (15,000 tokens) would be a safe upper bound, leaving room for the AI's response.</li>
+                    <li><strong>Generate Chunks:</strong> Click 'Chunk Prompt'. The tool will process your input and display the segmented parts.</li>
+                    <li><strong>Interact with AI:</strong>
+                        <ul>
+                            <li>Copy the first chunk and paste it into your AI chat.</li>
+                            <li>Continue copying and pasting subsequent chunks. Each chunk will instruct the AI to wait for the next part.</li>
+                            <li>The final chunk will explicitly tell the AI to provide its complete response based on all the information received.</li>
+                        </ul>
+                    </li>
+                </ol>
+                <p class="card-text small mb-0">
+                    This method ensures that even the most extensive prompts can be handled by AI models, providing comprehensive and accurate results.
+                </p>
+            </div>
+        </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        const chunkSizeSelect = document.getElementById('chunk_size_select');
+        const customChunkSizeWrapper = document.getElementById('custom_chunk_size_wrapper');
+        const customChunkSizeInput = document.getElementById('chunk_size');
+        const hiddenChunkSizeInput = document.getElementById('chunk_size_hidden');
+
+        hiddenChunkSizeInput.value = chunkSizeSelect.value;
+
+        chunkSizeSelect.addEventListener('change', function() {
+            if (this.value === 'custom') {
+                customChunkSizeWrapper.style.display = 'block';
+                hiddenChunkSizeInput.value = customChunkSizeInput.value;
+            } else {
+                customChunkSizeWrapper.style.display = 'none';
+                hiddenChunkSizeInput.value = this.value;
+            }
+        });
+
+        customChunkSizeInput.addEventListener('input', function() {
+            if (chunkSizeSelect.value === 'custom') {
+                hiddenChunkSizeInput.value = this.value;
+            }
+        });
+    </script>
+{% endblock %}

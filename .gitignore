@@ -67,10 +67,4 @@ docs/_build/
 # PyInstaller
 *.spec
 
-# Specific to this project
-/instance/
-/static/
-/templates/
-/prompt_chunk/
-/main.py
-/requirements.txt
+

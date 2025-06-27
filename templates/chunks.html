@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block title %}Prompt Splitter - Ready for AI{% endblock %}
+
+{% block content %}
+        <div class="text-start mb-4">
+            <a href="/" class="btn btn-secondary">&larr; Back to Home</a>
+        </div>
+
+        <div class="card mb-4 info-card">
+            <div class="card-body">
+                <h5 class="card-title text-success">How to Use These Split Prompts with Your AI Model</h5>
+                <ol class="small">
+                    <li><strong>Copy Each Split Prompt:</strong> Click the 'Copy' button next to each split prompt.</li>
+                    <li><strong>Paste Sequentially:</strong> Paste the split prompts into your AI chat interface one by one, in the order they appear here.</li>
+                    <li><strong>Follow Instructions:</strong> Each split prompt (except the last) will instruct the AI to store the information and wait for the next part. The final split prompt will explicitly tell the AI to provide its complete response based on all the information received.</li>
+                    <li><strong>Maintain Context:</strong> This sequential process ensures the AI receives your full prompt while respecting its token limits, allowing it to maintain context throughout your extensive input.</li>
+                </ol>
+                <p class="card-text small mb-0">
+                    Remember to wait for the AI to acknowledge each chunk before sending the next, if applicable.
+                </p>
+            </div>
+        </div>
+
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+            {% for chunk in chunks %}
+            <div class="col">
+                <div class="chunk-card h-100">
+                    <div class="chunk-header">
+                        <h5 class="mb-0">Split Prompt {{ loop.index }} of {{ chunks|length }}</h5>
+                        <div>
+                            <button class="btn btn-outline-secondary btn-sm toggle-btn" data-bs-toggle="collapse" data-bs-target="#chunk-content-{{ loop.index }}" aria-expanded="false" aria-controls="chunk-content-{{ loop.index }}">Show</button>
+                            <button class="btn btn-outline-primary btn-sm copy-btn" data-chunk-id="chunk-content-{{ loop.index }}">Copy</button>
+                        </div>
+                    </div>
+                    <div class="collapse" id="chunk-content-{{ loop.index }}">
+                        <div class="chunk-content">{{ chunk }}</div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="/" class="btn btn-secondary">Go Back</a>
+        </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function updateCopyButtonState(button, isCopied) {
+                if (isCopied) {
+                    button.innerText = 'Copied!';
+                    button.classList.add('copied');
+                } else {
+                    button.innerText = 'Copy';
+                    button.classList.remove('copied');
+                }
+            }
+
+            document.querySelectorAll('.copy-btn').forEach(function(button) {
+                const chunkId = button.getAttribute('data-chunk-id');
+                const chunkCard = button.closest('.chunk-card');
+
+                button.addEventListener('click', function() {
+                    const chunkText = document.getElementById(chunkId).querySelector('.chunk-content').innerText;
+                    const originalButtonText = this.innerText;
+                    const currentButton = this;
+
+                    navigator.clipboard.writeText(chunkText).then(function() {
+                        updateCopyButtonState(currentButton, true);
+                        chunkCard.classList.add('copied'); 
+                        setTimeout(function() {
+                            updateCopyButtonState(currentButton, false); 
+                        }, 1500);
+                    }).catch(function(err) {
+                        console.error('Could not copy text: ', err);
+                        alert('Failed to copy chunk. Please try again or copy manually.');
+                    });
+                });
+            });
+
+            document.querySelectorAll('.toggle-btn').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    if (this.innerText === 'Show') {
+                        this.innerText = 'Hide';
+                    } else {
+                        this.innerText = 'Show';
+                    }
+                });
+            });
+        });
+    </script>
+{% endblock %}
