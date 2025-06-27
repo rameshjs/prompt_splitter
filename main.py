@@ -66,9 +66,9 @@ async def split(request: Request, prompt: str = Form(...), split_size: int = For
         is_last_split = i == num_splits - 1
         
         if is_last_split:
-            split_prompt_text = f"This is the final part of the prompt. Please provide the complete response based on all the parts provided.\n\n{split_part}"
+            split_prompt_text = f"[START PART {i+1}/{num_splits}]\n{split_part}\n[END PART {i+1}/{num_splits}]\n\nALL PARTS SENT. Now you can continue processing the data and answering my requests."
         else:
-            split_prompt_text = f"This is part {i+1}/{num_splits} of a larger prompt. Store this information and wait for the final part before providing a complete response. Do not provide any output until you receive the final part.\n\n{split_part}"
+            split_prompt_text = f'[START PART {i+1}/{num_splits}]\n{split_part}\n[END PART {i+1}/{num_splits}]\n\nAfter you receive this, just answer with "Received part {i+1}/{num_splits}" and nothing else.'
         
         processed_splits.append(split_prompt_text)
         
